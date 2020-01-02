@@ -1,7 +1,7 @@
 {
-  "name": "objection-password-argon2",
+  "name": "objection-password-bcryptjs",
   "version": "2.3.1",
-  "description": "Automatic argon2 hashing for Objection.js",
+  "description": "Automatic bcryptjs hashing for Objection.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -28,9 +28,10 @@
   },
   "homepage": "https://github.com/venables/objection-password-argon2#readme",
   "dependencies": {
-    "argon2": "^0.24.1"
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/jest": "^24.0.11",
     "@types/node": "^12.7.7",
     "@typescript-eslint/eslint-plugin": "^2.3.1",

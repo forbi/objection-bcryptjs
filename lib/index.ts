@@ -1,48 +1,50 @@
 import { Model, ModelOptions, QueryContext } from 'objection'
-import Argon2 from 'argon2'
+import bcryptjs from 'bcryptjs'
 
 interface Configuration {
   allowEmptyPassword?: boolean;
   passwordField?: string;
+  rounds?: number;
 }
 
 interface Options {
   allowEmptyPassword: boolean;
   passwordField: string;
+  rounds: number;
 }
 
 const DEFAULT_OPTIONS: Options = {
   allowEmptyPassword: false,
-  passwordField: 'password'
+  passwordField: 'password',
+  rounds: 10
 }
 
-export default function objectionPasswordArgon2(configuration: Configuration = {}): Function {
+export default function objectionPassword (
+  configuration: Configuration = {}
+): Function {
   const options: Options = Object.assign({}, DEFAULT_OPTIONS, configuration)
 
   return (ModelClass: typeof Model) => {
     return class extends ModelClass {
       /**
-       * Detect rehashing for avoiding undesired effects
+       * Compares a password to a bcrypt hash
        */
-      public static isArgonHash(str: string): boolean {
-        return isArgonHash(str)
+      public async verifyPassword (password: string): Promise<boolean> {
+        const hash = this.getPasswordHash()
+        if (hash) return bcryptjs.compare(password, hash)
+        throw Error('Error getting hash')
       }
 
-      /**
-       * Compares a password to an Argon2 hash
-       */
-      public static async verifyPassword(password: string, otherPassword: string): Promise<boolean> {
-        const hash = await Argon2.hash(password)
-        return Argon2.verify(hash, otherPassword)
-      }
-
-      public async $beforeInsert(context: QueryContext) {
+      public async $beforeInsert (context: QueryContext) {
         await super.$beforeInsert(context)
 
         return this.generateHash()
       }
 
-      public async $beforeUpdate(opt: ModelOptions, queryContext: QueryContext) {
+      public async $beforeUpdate (
+        opt: ModelOptions,
+        queryContext: QueryContext
+      ) {
         await super.$beforeUpdate(opt, queryContext)
 
         if (opt.patch && this.getPasswordHash() === undefined) {
@@ -52,31 +54,23 @@ export default function objectionPasswordArgon2(configuration: Configuration = {
         return this.generateHash()
       }
 
-      /**
-       * Compares a password to an Argon2 hash
-       */
-      public async verifyPassword(password: string): Promise<boolean> {
-        const hash = this.getPasswordHash()
-
-        if (!hash) {
-          return false
-        }
-
-        return Argon2.verify(hash, password)
+      private isBcryptHash (str: string) {
+        const BCRYPT_REGEXP = /^\$2[ayb]\$.{56}$/
+        return BCRYPT_REGEXP.test(str)
       }
 
       /**
-       * Generates an Argon2 hash
+       * Generates an bcrypt hash
        */
-      private async generateHash() {
+      private async generateHash () {
         const password = this.getPasswordHash()
 
         if (password && password.length > 0) {
-          if (isArgonHash(password)) {
-            throw new Error('Argon2 tried to hash another Argon2 hash')
+          if (this.isBcryptHash(password)) {
+            throw new Error('Bcrypt tried to hash another Bcrypt hash')
           }
 
-          const hash = await Argon2.hash(password)
+          const hash = await bcryptjs.hash(password, options.rounds)
           this.setPasswordHash(hash)
           return
         }
@@ -86,20 +80,15 @@ export default function objectionPasswordArgon2(configuration: Configuration = {
         }
       }
 
-      private setPasswordHash(hash: string) {
+      private setPasswordHash (hash: string) {
         // @ts-ignore
         this[options.passwordField] = hash
       }
 
-      private getPasswordHash(): string | null | undefined {
+      private getPasswordHash (): string | null | undefined {
         // @ts-ignore
         return this[options.passwordField]
       }
     }
   }
-}
-
-function isArgonHash(str: string) {
-  const ARGON2_REGEXP = /^\$argon/
-  return ARGON2_REGEXP.test(str)
 }

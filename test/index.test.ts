@@ -13,15 +13,15 @@ const knex = Knex({
 Model.knex(knex)
 
 class Dog extends ObjectionPassword()(Model) {
-  public static tableName = 'dog'
+  public static tableName = 'dog';
 
-  public readonly id?: number
-  public name?: string
-  public password?: string
+  public readonly id?: number;
+  public name?: string;
+  public password?: string;
 }
 
 beforeAll(async () => {
-  await knex.schema.createTable('dog', (table) => {
+  await knex.schema.createTable('dog', table => {
     table.increments()
     table.string('name')
     table.string('password')
@@ -47,33 +47,39 @@ test('creates new hash when updating password', async () => {
   const dog = await Dog.query().insert({ name: 'JJ', password: original })
   expect(await dog.verifyPassword(original)).toBe(true)
 
-  const updatedDog = await dog.$query().patchAndFetchById(dog.id!, { password: updated })
+  const updatedDog = await dog
+    .$query()
+    .patchAndFetchById(dog.id!, { password: updated })
   expect(await updatedDog.verifyPassword(updated)).toBe(true)
 })
 
-test('ignores hashing password field when patching a record where password isn\'t updated', async () => {
+test("ignores hashing password field when patching a record where password isn't updated", async () => {
   const dog = await Dog.query().insert({ name: 'JJ', password: 'Turtle123!' })
   const passwordHash = dog.password
 
-  const updatedDog = await dog.$query().patchAndFetchById(dog.id!, { name: 'Jumbo Jet' })
+  const updatedDog = await dog
+    .$query()
+    .patchAndFetchById(dog.id!, { name: 'Jumbo Jet' })
 
   expect(updatedDog.password).toEqual(passwordHash)
 })
 
 test('do not allow empty password', async () => {
   const password = ''
-  await expect(Dog.query().insert({ name: 'JJ', password })).rejects.toThrowError(/password must not be empty/)
+  await expect(
+    Dog.query().insert({ name: 'JJ', password })
+  ).rejects.toThrowError(/password must not be empty/)
 })
 
 test('allow empty password', async () => {
   class Mouse extends ObjectionPassword({ allowEmptyPassword: true })(Model) {
-    public static tableName = 'mouse'
+    public static tableName = 'mouse';
 
-    public name?: string
-    public password?: string
+    public name?: string;
+    public password?: string;
   }
 
-  await knex.schema.createTable('mouse', (table) => {
+  await knex.schema.createTable('mouse', table => {
     table.increments()
     table.string('name')
     table.string('password')
@@ -85,20 +91,23 @@ test('allow empty password', async () => {
   expect(mouse.password).toBeFalsy()
 })
 
-test('throws an error when attempting to hash a argon2 hash', async () => {
-  const password = '$argon2i$v=19$m=4096,t=3,p=1$yqdvmjCHT1o+03hbpFg7HQ$Vg3+D9kW9+Nm0+ukCzKNWLb0h8iPQdTkD/HYHrxInhA'
-  await expect(Dog.query().insert({ name: 'JJ', password })).rejects.toThrowError('Argon2 tried to hash another Argon2 hash')
+test('throws an error when attempting to hash a bcrypt hash', async () => {
+  const password =
+    '$2y$10$JvId1KIyLTpDnqCtNIDVruLvpOjLg1N4D5aIL6Ps1Yd/hDNwlKyaG'
+  await expect(
+    Dog.query().insert({ name: 'JJ', password })
+  ).rejects.toThrowError('Bcrypt tried to hash another Bcrypt hash')
 })
 
 test('can override default password field', async () => {
   class Cat extends ObjectionPassword({ passwordField: 'hash' })(Model) {
-    public static tableName = 'cat'
+    public static tableName = 'cat';
 
-    public name?: string
-    public hash?: string
+    public name?: string;
+    public hash?: string;
   }
 
-  await knex.schema.createTable('cat', (table) => {
+  await knex.schema.createTable('cat', table => {
     table.increments()
     table.string('name')
     table.string('hash')
@@ -109,10 +118,4 @@ test('can override default password field', async () => {
 
   expect(cat.hash).toBeTruthy()
   expect(await cat.verifyPassword(password)).toBe(true)
-})
-
-test('allows verifying two password strings', async () => {
-  expect(await Dog.verifyPassword('test', 'test')).toBeTruthy()
-
-  expect(await Dog.verifyPassword('test', 'not-the-same')).toBeFalsy()
 })
