@@ -1,6 +1,6 @@
 {
-  "name": "objection-password-bcryptjs",
-  "version": "2.3.1",
+  "name": "objection-bcryptjs",
+  "version": "1.0.0",
   "description": "Automatic bcryptjs hashing for Objection.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,17 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/venables/objection-password-argon2.git"
+    "url": "git+https://github.com/forbi/objection-bcryptjs.git"
   },
-  "author": "Matt Venables <mattvenables@gmail.com>",
-  "contributors": [
-    "James Dixon <jim.w.dixon@gmail.com>"
-  ],
+  "author": "Mariano Zunino <marianoz@zoho.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/venables/objection-password-argon2/issues"
+    "url": "https://github.com/forbi/objection-bcryptjs/issues"
   },
-  "homepage": "https://github.com/venables/objection-password-argon2#readme",
+  "homepage": "https://github.com/forbi/objection-bcryptjs#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3"
   },
@@ -34,9 +31,9 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/jest": "^24.0.11",
     "@types/node": "^12.7.7",
-    "@typescript-eslint/eslint-plugin": "^2.3.1",
-    "@typescript-eslint/parser": "^2.3.1",
-    "eslint": "^6.4.0",
+    "@typescript-eslint/eslint-plugin": "^2.14.0",
+    "@typescript-eslint/parser": "^2.14.0",
+    "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-node": "^10.0.0",

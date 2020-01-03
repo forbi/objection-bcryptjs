@@ -2,21 +2,26 @@
 
 This plugin automatically adds automatic password hashing to your [Objection.js](https://github.com/Vincit/objection.js/) models. This makes it super-easy to secure passwords and other sensitive data.
 
-Under the hood, the plugin uses Bcryptjs for hashing.
+Under the hood, the plugin uses [Bcrypt.js](https://github.com/dcodeIO/bcrypt.js/) for hashing.
 
 ## Installation
 
-`yarn add objection-password-bcryptjs`
+`yarn add objection-bcryptjs`
 
 ## Usage
 
 ### Hashing your data
 
 ```js
-import Password from "objection-password-bcryptjs";
+import ObjectionBcrypt from "objection-bcryptjs";
 import Model from "objection";
 
-class Person extends Password()(Model) {
+const Password = ObjectionBcrypt({
+  passwordField: "password", //default
+  rounds: 10 //default 
+});
+
+class Person extends Password(Model) {
   // ...
 }
 
@@ -37,26 +42,19 @@ const password = "q1w2e3r4";
 
 // fetch the person by email
 const person = await Person.query()
-  .first()
-  .where({ email: "matt@damon.com" });
+  .findOne({ email: "matt@damon.com" });
 
 // verify the password is correct
 const passwordValid = await person.verifyPassword(password);
+
 ```
 
 ## Options
 
 There are a few options you can pass to customize the way the plugin works.
 
-These options can be added when instantiating the plugin. For example:
+These options can be added when instantiating the plugin.
 
-```js
-import Password from "objection-password-bcrtpyjs";
-
-class Person extends Password({ passwordField: "hash" })(Model) {
-  // ...
-}
-```
 
 #### `allowEmptyPassword` (defaults to `false`)
 
