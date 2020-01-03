@@ -1,4 +1,5 @@
 # Automatic Bcryptjs Password Hashing for Objection.js
+[![Build Status](https://travis-ci.com/forbi/objection-password-bcryptjs.svg?branch=master)](https://travis-ci.com/forbi/objection-password-bcryptjs)
 
 This plugin automatically adds automatic password hashing to your [Objection.js](https://github.com/Vincit/objection.js/) models. This makes it super-easy to secure passwords and other sensitive data.
 
